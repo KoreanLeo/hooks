@@ -1,25 +1,90 @@
-import logo from './logo.svg';
-import './App.css';
+import {useState, useEffect} from "react";
+
+//UseInput
+const useInput = (initialValue, validator) =>{
+  const [value,setValue] = useState(initialValue);
+  const onChange = (event)=>{
+    const {
+      target : {value}
+    } = event;
+    let willUpdate =true;
+    if(typeof validator === "function"){
+      willUpdate = validator(value);
+    }
+    console.log(willUpdate);
+    if (willUpdate){
+      setValue(value);
+    }
+  }
+  return {value, onChange};
+}
+
+//UseTabs
+const useTabs = (initialTab, allTabs) => {
+  const [currentIndex, setcurrentIndex] = useState(initialTab);
+  if (!allTabs || !Array.isArray(allTabs)) {
+  return;
+  }
+  return { 
+    currentItem: allTabs[currentIndex],
+    changeItem : setcurrentIndex
+  };
+};
+const content = [
+  {
+    tab : "Section 1",
+    content : "I'm the content of the Section 1",
+  },
+  {
+    tab : "Section 2",
+    content : "I'm the content of the Section 2",
+  }
+]
+
+//UseTitle
+const useTitle = (initialTitle) => {
+  const [title, setTitle] = useState(initialTitle);
+  const updateTitle = () =>{
+    const htmlTitle = document.querySelector("title");
+    htmlTitle.innerText =title;
+  }
+  useEffect(updateTitle,[title]);
+  return setTitle;
+}
 
 function App() {
+
+  //UseInput
+  const maxLen = value => !value.includes("@");
+  const name = useInput("Mr.", maxLen);
+  //UseTabs
+  const {currentItem,changeItem} = useTabs(0, content);
+  //UseTitle
+  const titleUpdater = useTitle("Loding....");
+  setTimeout(()=>titleUpdater("Home"),5000);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div>
+      {/* UseInput */}
+      <h1>hello</h1>
+      <input placeholder="Name" type="text" {...name} />
+      <hr />
+      {/* UseTabs */}
+      {content.map((section, index) =>
+        <button
+          key ={index}
+          onClick={()=>changeItem(index)}
         >
-          Learn React
-        </a>
-      </header>
+          {section.tab}
+        </button>
+      )}
+      <div>
+        {currentItem.content}
+      </div>
+      <hr/>
+
     </div>
   );
 }
 
-export default App;
+export default App;  
